@@ -1,1 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقعي الحالي</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 90%;
+            width: 320px;
+        }
+        h2 { margin-bottom: 20px; color: #333; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #0056b3; }
+        #status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>مشارك المكان السريع</h2>
+    <button onclick="getLocation()">حدد مكاني وانسخ الرابط</button>
+    <div id="status">اضغط على الزر لجلب موقعك</div>
+</div>
+
+<script>
+function getLocation() {
+    const status = document.getElementById('status');
+    
+    if (!navigator.geolocation) {
+        status.innerText = "متصفحك لا يدعم خاصية تحديد الموقع الجغرافي.";
+        return;
+    }
+
+    status.innerText = "جاري تحديد موقعك الـ GPS...";
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const mapsUrl = `https://maps.google.com/?q=${lat},${lon}`;
+
+            // نسخ الرابط تلقائياً للحافظة
+            navigator.clipboard.writeText(mapsUrl).then(() => {
+                status.innerHTML = `<b style="color: green;">تم نسخ الرابط بنجاح!</b><br><br><a href="${mapsUrl}" target="_blank">افتح الموقع على الخريطة</a>`;
+            }).catch(() => {
+                status.innerText = "تم تحديد الموقع لكن تعذر النسخ التلقائي: " + mapsUrl;
+            });
+        },
+        (error) => {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    status.innerText = "تم رفض إذن الوصول إلى الموقع. يرجى تفعيله من إعدادات المتصفح.";
+                    break;
+                default:
+                    status.innerText = "تعذر جلب الموقع الحالي، تأكد من تشغيل الـ GPS.";
+                    break;
+            }
+        },
+        { enableHighAccuracy: true } // استخدام أعلى دقة GPS ممكنة
+    );
+}
+</script>
+
+</body>
+</html>
 
